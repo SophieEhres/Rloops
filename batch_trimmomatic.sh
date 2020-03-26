@@ -52,7 +52,7 @@ for dir in $dirs; do
 		${fastadir}/${dir}/${file1} ${fastadir}/${dir}/${file2} \
 		${trimdir}/${name}_R1_trim_paired.fq ${trimdir}/${name}_R1_trim_unpaired.fq \
 		${trimdir}/${name}_R2_trim.fq ${trimdir}/${name}_R2_trim_unpaired.fq \
-		ILLUMINACLIP:$dir0/tools/Trimmomatic-0.39/adapters/NEBNext_PE.fa:2:30:10 " |
+		ILLUMINACLIP:${dir0}/tools/Trimmomatic-0.39/adapters/NEBNext_PE.fa:2:30:10 " |
 	    sbatch | grep "[0-9]" | cut -d\ -f4)
 	
 	done

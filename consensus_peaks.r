@@ -1,5 +1,6 @@
+#!/bin/R
 #Merge Consensus peaks (RNH+NT)
-setwd("~/computational/rloop/bed")
+setwd("/Users/ehresms/computational/rloop/merged_bed")
 
 library(rtracklayer)
 library(GenomicRanges)
@@ -12,9 +13,9 @@ rnase_files<-unique(c(grep(names, pattern = "RNH", value = TRUE), grep(names, pa
 for (name in unique(names)) {
   files<-grep(list.files("."), pattern = name, value = TRUE)
   
-  peak_files<-grep(files, pattern = "forward", value = TRUE)
-  peak_granges<-lapply(peak_files, import)
-  peak_grangeslist<-GRangesList(peak_granges)
+  peak_files <-grep(files, pattern = "forward", value = TRUE)
+  peak_granges <- lapply(peak_files, import)
+  peak_grangeslist <- GRangesList(peak_granges)
   peak_coverage <- coverage(peak_grangeslist)
   covered_ranges <- slice(peak_coverage, lower=2, rangesOnly=T)
   covered_granges <- GRanges(covered_ranges)

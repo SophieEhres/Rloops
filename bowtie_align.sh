@@ -1,14 +1,11 @@
 #!/bin/bash
-
 exec 2>./bowtie_align_trimmed.log
 
-module load bowtie2
-
-dir0=~/scratch
+dir0=~/computational
 genomedir=$dir0/genomes/droso/bowtie
-loopdir=$dir0/new_rloop
+loopdir=$dir0/rloop
 aligndir=$loopdir/align_trimmed
-fastadir=$loopdir/trim		
+fastadir=$loopdir/trim
 
 mkdir $aligndir
 
@@ -18,6 +15,7 @@ dirnames=$(ls $fastadir)
 echo "dirnames are $dirnames"
 
 for i in ${dirnames}; do
+	mkdir $i
 
 	samples=$(ls $fastadir/$i | grep -e "paired" | cut -d '_' -f1 | sort -u)
 	
@@ -32,14 +30,14 @@ for i in ${dirnames}; do
 		echo "file1 is $file1, file 2 is $file2"  
 
 		bowtie2 -q -p 12 -x $genomedir/bowtie_droso -1 $fastadir/$i/$file1 -2 $fastadir/$i/$file2 \
-			-S ${name}_aligned_rep1.sam
+			-S $i/${name}_aligned_rep1.sam
 		
 		file3=$(ls $fastadir/$i |grep -e $name |grep -e "R1" |tail -n 1) 	
 		file4=$(ls $fastadir/$i |grep -e $name |grep -e "R2" |tail -n 1)
 		echo "file3 is $file3, file 4 is $file4"
 		
 		bowtie2 -q -p 12 -x ${genomedir}/bowtie_droso -1 $fastadir/$i/$file3 -2 $fastadir/$i/$file4 \
-                        -S ${name}_aligned_rep2.sam
+                        -S $i/${name}_aligned_rep2.sam
 	done
 
 done

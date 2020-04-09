@@ -28,11 +28,18 @@ for condition in $conditions; do
 		for treatment in $treatments; do
 
 			computeMatrix reference-point --referencePoint TSS \
-			-b 1000 -a 1000 \
-			-R $genome \
-			-S $(echo "${!treatment}") \
-			-p 12 \
-			-o $matdir/${condition}_${treatment}_${orientation}.gz \
+				-b 1000 -a 3000 \
+				-R $genome \
+				-S $(echo "${!treatment}") \
+				-p 12 \
+				-o $matdir/${condition}_${treatment}_${orientation}_TSS.gz \
+			
+			computeMatrix\
+				-b 1000 -a 3000 \
+				-R $genome \
+				-S $(echo "${!treatment}") \
+				-p 12 \
+				-o $matdir/${condition}_${treatment}_${orientation}_mid.gz \
 
 		done
 	done

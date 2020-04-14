@@ -39,42 +39,42 @@ for condition in ${conditions}; do
 		-b 2500 -a 2500 \
 		-R ${genome} \
 		-S ${files} \
-		-p 12 \
+		-p 16 \
 		-o ${matdir}/${condition}_TSS.gz \
 	
 	computeMatrix scale-regions\
 		-b 1500 -a 1500 \
 		-R ${genome} \
 		-S ${files} \
-		-p 12 \
+		-p 16 \
 		-o ${matdir}/${condition}_TSS-scale.gz \
 
 	computeMatrix reference-point --referencePoint TSS \
 		-b 2500 -a 2500 \
 		-R ${reference_file} \
 		-S ${files} \
-		-p 12 \
+		-p 16 \
 		-o ${matdir}/${condition}_reference.gz \
 
 	computeMatrix scale-regions \
 		-b 2500 -a 2500 \
 		-R ${reference_file} \
 		-S ${files} \
-		-p 12 \
+		-p 16 \
 		-o ${matdir}/${condition}_reference-scale.gz \
 
 	computeMatrix reference-point --referencePoint TSS \
 		-b 2500 -a 2500 \
 		-R ${all_reference_file} \
 		-S ${files} \
-		-p 12 \
+		-p 16 \
 		-o ${matdir}/${condition}_reference-all.gz \
 
 	computeMatrix scale-regions \
 		-b 2500 -a 2500 \
 		-R ${all_reference_file} \
 		-S ${files} \
-		-p 12 \
+		-p 16 \
 		-o ${matdir}/${condition}_reference-all-scale.gz \
 
 done

@@ -23,8 +23,12 @@ for file in $(ls ${beddir}); do
 
     else 
 
-        python ${function} -i ${beddir}/${file} -o ${gtfdir}/${name}.gtf
+        python ${function} -i ${beddir}/${file} -o ${gtfdir}/temp.gtf
 
+        awk '{OFS = "\t"} {$7 = "-"; print}' ${gtfdir}/temp.gtf > ${gtfdir}/${name}.gtf
+        
+        rm ${gtfdir}/temp.gtf
+        
     fi
 
 

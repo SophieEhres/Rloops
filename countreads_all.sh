@@ -1,22 +1,29 @@
 #!/bin/bash
 
-dir0=${computational}
+dir0="/Users/ehresms/computational"
 bamdir=${dir0}/rloop/align
 countdir=${dir0}/rloop/counts
-gtfdir=${dir0}/rloop/gtf
+gtfdir=${dir0}/rloop/consensus_gtf
 
 mkdir -p ${countdir}
 
-for file in $(ls ${bamdir}); do
+anno=$(ls ${gtfdir}/*.gtf | grep -e "both" | grep -e "all" | grep -e "annotation")
 
-    echo "counting ${file}"
 
-    name=$(echo ${file} | cut -d "_" -f1)
-    anno=$(ls ${gtfdir} | grep -e "${name}")
+for file in $(ls ${bamdir}/*.bam ); do
 
-    countFeatures -T 16 -a ${gtfdir}/${anno} \
-        -p -F -G -M --fraction \
-        -o ${countdir}/${name} \
+    name=$(echo ${file%????} | rev | cut -d "/" -f1 | rev)
+
+    echo "counting for ${name}"
+
+    featureCounts -T 16 -p \
+        -M --fraction \
+        -t "exon" \
+        -g "test_id" \
+        -s 1 \
+        -F GTF \
+        -a ${anno} \
+        -o ${countdir}/${name}_all.txt \
         ${file}
 
 done

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir0=/Users/ehresms/computational
+dir0="/Users/ehresms/computational"
 bamdir=${dir0}/rloop/align
 countdir=${dir0}/rloop/counts
 gtfdir=${dir0}/rloop/consensus_gtf
@@ -34,7 +34,7 @@ for file in $(ls ${bamdir}/*.bam); do
         -s 1 \
         -F GTF \
         -a ${anno} \
-        -o ${countdir}/${name} \
+        -o ${countdir}/${name}.txt \
         ${file}
 
 done

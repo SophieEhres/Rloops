@@ -1,39 +1,73 @@
 #!/bin/bash
 
 dir0="/Users/ehresms/computational"
-matdir=$dir0/rloop/matrix
-plotdir=$dir0/rloop/plot
+matdir=${dir0}/rloop/matrix
+plotdir=${dir0}/rloop/plot
+wigdir=${dir0}/rloop/bigwig
 
-mkdir -p $plotdir
-
-conditions="S2 6 10"
+mkdir -p ${plotdir}
 
 TSS=$(ls ${matdir}/*.gz | grep -e "TSS")
-mid=$(ls ${matdir}/*.gz | grep -e "mid")
+mid=$(ls ${matdir}/*.gz | grep -e "reference")
+
 
 
 for file in ${TSS}; do
 	
-	name=$(echo -e ${file} | cut -d "." -f1-2 | cut -d "/" -f7)
+	name=$(echo -e ${file} | cut -d "/" -f7 | cut -d "." -f1)
+	name_file=$(echo ${name} | cut -d "_" -f1)
+	labels=$(ls ${wigdir} | grep -e ${name_file} | grep -e "final" | cut -d "_" -f1-2)
 
-	plotProfile -m $file \
-	--outFileName $plotdir/${name}_TSS.png \
+	for label in $labels; do
+		echo "${label} " >> ./names.txt
+	done
+
+	real_labels=$(cat ./names.txt | tr "\n" " " )
+
+
+	echo "there are $(cat ./names.txt | wc -l) labels, which are ${real_labels}"
+
+
+	plotProfile -m ${file} \
+	--outFileName ${plotdir}/${name}.svg \
+	--plotHeight "10" \
+	--plotWidth "20" \
 	--perGroup \
-	--colors "#ff200f" "#cf2f2f" "#ff9700" "#d3921d" "#87ff00" "#109800" "#127b2a" "#00ffc9" "#41fed6" "#1d3fee" "#0036ff" "#7592fe" "#a175fe" "#8f00f0" \
-	--plotTitle "coverage TSS"
-	
+	--colors "#ff200f" "#cf2f2f" "#ff9700" "#d3921d" "#87ff00" "#109800" "#127b2a" "#00ffc9" "#6843c5" "#bc94ee" "#0036ff" "#7592fe" "#6843c5" "#6843c5" \
+	--plotTitle "peak average coverage around TSS" \
+	--legendLocation "lower-left" \
+	--plotFileFormat "svg"  
+  
+  rm ./names.txt
 
 done 
 
+
+
 for file in ${mid}; do
 
-	name=$(echo -e ${file} | cut -d "." -f1 | cut -d "/" -f7)
+	name=$(echo -e ${file} | cut -d "/" -f7 | cut -d "." -f1)
+	name_file=$(echo ${name} | cut -d "_" -f1)
+	labels=$(ls ${wigdir} | grep -e ${name_file} | grep -e "final" | cut -d "_" -f1-2)
 
-	plotProfile -m $file \
-		--outFileName $plotdir/${name}_mid.png \
+	for label in $labels; do
+		echo "label is ${label}"
+		echo "\"${label}\"" >> ./names.txt
+	done
+
+	real_labels=$(cat ./names.txt | tr "\n" " " )
+
+	plotProfile -m ${file} \
+		--outFileName ${plotdir}/${name}.svg \
 		--perGroup \
-		--colors  "#ff200f" "#cf2f2f" "#ff9700" "#d3921d" "#87ff00" "#109800" "#127b2a" "#00ffc9" "#41fed6" "#1d3fee" "#0036ff" "#7592fe" "#a175fe" "#8f00f0" \
-		--plotTitle "coverage mid"
+		--colors  "#ff200f" "#cf2f2f" "#ff9700" "#d3921d" "#87ff00" "#109800" "#127b2a" "#00ffc9" "#6843c5" "#bc94ee" "#0036ff" "#7592fe" "#eac2e8" "#6843c5" \
+		--plotTitle "peak average coverage around middle of peak" \
+		--legendLocation "center-right" \
+		--plotFileFormat "svg" \
+		--refPointLabel "0" \
+		--plotHeight "10" \
+		--plotWidth "20" 
 
+	rm ./names.txt 
 
 done

@@ -25,8 +25,8 @@ for dir in ${dirnames}; do
 		
 		echo "Name is $name"
 
-		file1=$(ls $fastadir/$dir |grep -e $name |grep -e "R1" |head -n 1)  
-		file2=$(ls $fastadir/$dir |grep -e $name |grep -e "R2" |head -n 1)
+		file1=$(ls $fastadir/$dir |grep -e $name |grep -e "R1" )  
+		file2=$(ls $fastadir/$dir |grep -e $name |grep -e "R2" )
 		echo "file1 is $file1, file 2 is $file2"  
 
 		bowtie2 -q -p 12 -x $genomedir/bowtie_droso -1 $fastadir/$dir/$file1 -2 $fastadir/$dir/$file2 \

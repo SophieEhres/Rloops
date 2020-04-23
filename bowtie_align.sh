@@ -14,10 +14,10 @@ cd $aligndir
 dirnames=$(ls $fastadir)
 echo "dirnames are $dirnames"
 
-for i in ${dirnames}; do
-	mkdir $i
+for dir in ${dirnames}; do
+	mkdir $dir
 
-	samples=$(ls $fastadir/$i | grep -e "paired" | cut -d '_' -f1 | sort -u)
+	samples=$(ls $fastadir/$dir | grep -e "paired" | cut -d '_' -f1 | sort -u)
 	
 	echo "Samples are $samples"
 
@@ -25,19 +25,13 @@ for i in ${dirnames}; do
 		
 		echo "Name is $name"
 
-		file1=$(ls $fastadir/$i |grep -e $name |grep -e "R1" |head -n 1)  
-		file2=$(ls $fastadir/$i |grep -e $name |grep -e "R2" |head -n 1)
+		file1=$(ls $fastadir/$dir |grep -e $name |grep -e "R1" |head -n 1)  
+		file2=$(ls $fastadir/$dir |grep -e $name |grep -e "R2" |head -n 1)
 		echo "file1 is $file1, file 2 is $file2"  
 
-		bowtie2 -q -p 12 -x $genomedir/bowtie_droso -1 $fastadir/$i/$file1 -2 $fastadir/$i/$file2 \
-			-S $i/${name}_aligned_rep1.sam
-		
-		file3=$(ls $fastadir/$i |grep -e $name |grep -e "R1" |tail -n 1) 	
-		file4=$(ls $fastadir/$i |grep -e $name |grep -e "R2" |tail -n 1)
-		echo "file3 is $file3, file 4 is $file4"
-		
-		bowtie2 -q -p 12 -x ${genomedir}/bowtie_droso -1 $fastadir/$i/$file3 -2 $fastadir/$i/$file4 \
-                        -S $i/${name}_aligned_rep2.sam
+		bowtie2 -q -p 12 -x $genomedir/bowtie_droso -1 $fastadir/$dir/$file1 -2 $fastadir/$dir/$file2 \
+			-S $dir/${name}_aligned.sam
+	
 	done
 
 done

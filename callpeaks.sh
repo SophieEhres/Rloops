@@ -1,5 +1,5 @@
 #!/bin/bash
-exec 2>~/computational/scripts/callpeaks_redo.log
+exec 2>~/computational/scripts/callpeaks.log
 
 dir0=~/computational
 splitdir=$dir0/rloop/split_sam
@@ -8,8 +8,8 @@ peakdir=$dir0/rloop/first_peak
 
 mkdir -p $peakdir
 
-for dir in $(ls $splitdir | grep -e "June"); do
-	mkdir -p $peakdir/$dir
+for dir in $(ls $splitdir); do
+
 
 	files=$(ls $splitdir/$dir | grep -v "input")
 	
@@ -19,7 +19,7 @@ for dir in $(ls $splitdir | grep -e "June"); do
 		name=$(echo $file | cut -d "." -f1)
 		
 		macs2 callpeak -t $splitdir/$dir/$file -c $aligndir/$dir/$control1 $aligndir/$dir/$control2 \
-		--name $name --outdir $peakdir/$dir/$name \
-		--format BAMPE -g 1.2e8 --nomodel 
+		--name $name --outdir $peakdir/$name \
+		--format BAMPE -g 1.2e8 --nomodel -q 0.01
 	done
 done

@@ -1,37 +1,36 @@
 #!/bin/bash
 exec 2>./bowtie_align_trimmed.log
 
-dir0=~/computational
-genomedir=$dir0/genomes/droso/bowtie
-loopdir=$dir0/rloop
-aligndir=$loopdir/align_trimmed
-fastadir=$loopdir/trim
+dir0="/Users/ehresms/computational"
+genomedir=${dir0}/genomes/droso/bowtie
+loopdir=${dir0}/rloop
+aligndir=${loopdir}/align_trimmed
+fastadir=${loopdir}/trim
 
-mkdir $aligndir
+mkdir ${aligndir}
 
-cd $aligndir
-
-dirnames=$(ls $fastadir)
-echo "dirnames are $dirnames"
-
-for dir in ${dirnames}; do
-	mkdir $dir
-
-	samples=$(ls $fastadir/$dir | grep -e "paired" | cut -d '_' -f1 | sort -u)
+	samples=$(ls ${fastadir} | grep -e "paired" | cut -d '_' -f1-2 | sort -u)
 	
-	echo "Samples are $samples"
+	echo "Samples are ${samples}"
 
-	for name in $samples; do
+	for name in ${samples}; do
 		
-		echo "Name is $name"
+		echo "Name is ${name}"
 
-		file1=$(ls $fastadir/$dir |grep -e $name |grep -e "R1" )  
-		file2=$(ls $fastadir/$dir |grep -e $name |grep -e "R2" )
-		echo "file1 is $file1, file 2 is $file2"  
+		if [ -f ${aligndir}/${name}_aligned.sam ]; then
 
-		bowtie2 -q -p 12 -x $genomedir/bowtie_droso -1 $fastadir/$dir/$file1 -2 $fastadir/$dir/$file2 \
-			-S $dir/${name}_aligned.sam
-	
+			echo "already aligned"
+		
+		else
+
+			file1=$(ls ${fastadir}/*.fq |grep -e ${name}_ |grep -e "R1" )  
+			file2=$(ls ${fastadir}/*.fq |grep -e ${name}_ |grep -e "R2" )
+			echo "file1 is ${file1}, file 2 is ${file2}"  
+
+			 bowtie2 -q -p 12 -x ${genomedir}/bowtie_droso -1 ${file1} -2 ${file2} \
+				 -S ${aligndir}/${name}_aligned.sam
+		fi
+
 	done
 
 done

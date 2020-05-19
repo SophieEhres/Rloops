@@ -1,25 +1,34 @@
 #!/bin/bash
 exec 2>~/computational/scripts/callpeaks.log
 
-dir0=~/computational
-splitdir=$dir0/rloop/split_sam
-aligndir=$dir0/rloop/align
-peakdir=$dir0/rloop/first_peak
+dir0="/Users/ehresms/computational"
+splitdir="${dir0}/rloop/split_sam"
+aligndir="${dir0}/rloop/align"
+peakdir="${dir0}/rloop/peaks"
 
 mkdir -p $peakdir
 
-for dir in $(ls $splitdir); do
+names=$(ls ${splitdir} | cut -d "_" -f1-2 | uniq | grep -v "input" )
 
+for name in ${names}; do
 
-	files=$(ls $splitdir/$dir | grep -v "input")
-	
-	for file in $files; do
-		control1=$(ls $aligndir/$dir | grep -e "input_aligned_rep1" | grep -v "RNase")
-		control2=$(ls $aligndir/$dir | grep -e "input_aligned_rep2" | grep -v "RNase")
-		name=$(echo $file | cut -d "." -f1)
+		echo "calling peaks for ${name}"
+
+		controlname=$(echo ${name} | rev | cut -d "-" -f2- | rev)
+
+		file_f=$(ls ${splitdir}/*.bam | grep -e ${name} | grep -v "input" | grep -e "forward")
+		control_f=$(ls ${splitdir}*.bam | grep -e ${controlname} | grep -e "input" | grep -v "RNase" | grep -e "forward")
+
+		file_r=$(ls ${splitdir}/*.bam | grep -e ${name} | grep -v "input" | grep -e "reverse")
+		control_r=$(ls ${splitdir}*.bam | grep -e ${controlname} | grep -e "input" | grep -v "RNase" | grep -e "reverse")
 		
-		macs2 callpeak -t $splitdir/$dir/$file -c $aligndir/$dir/$control1 $aligndir/$dir/$control2 \
-		--name $name --outdir $peakdir/$name \
+		
+		macs2 callpeak -t ${file_f} -c ${control_f} \
+		--name ${name}_forward --outdir ${peakdir}/${name}_forward \
 		--format BAMPE -g 1.2e8 --nomodel -q 0.01
-	done
+		
+		macs2 callpeak -t ${file_r} -c ${control_r} \
+		--name ${name}_reverse --outdir ${peakdir}/${name}_reverse \
+		--format BAMPE -g 1.2e8 --nomodel -q 0.01
+		
 done

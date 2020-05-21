@@ -1,63 +1,92 @@
 #!/bin/bash
 exec 2>./bowtie_align_trimmed.log
 
+echo "Bowtie align launched on $(date)" 1>&2
+
 dir0="/Users/ehresms/computational"
 genomedir=${dir0}/genomes/droso/bowtie
 loopdir=${dir0}/rloop
 aligndir=${loopdir}/align_trimmed
-fastadir=${loopdir}/trim
+trimdir=${loopdir}/trim
+splitdir=${loopdir}/split_sam
 
 mkdir ${aligndir}
 
-	samples=$(ls ${fastadir} | grep -e "paired" | cut -d '_' -f1-2 | sort -u)
+samples=$(ls ${trimdir} | grep -e "paired" | rev |cut -d '_' -f4- | rev | sort -u)
+
+echo "Samples are ${samples}"
+
+for name in ${samples} ; do		
+
+	split=$(ls ${splitdir}/*.bam | grep -e "${name}_" | head -n 1)
+	echo "split is ${split}"
+	echo "Name is ${name}"
+
+
+	if [ -f "${aligndir}/${name}_aligned.sam" ] ; then
+
+		echo "already aligned"
+
+	elif test -n "${split}" ; then
+
+		echo "already aligned and split"
+
+	else
+
+		echo "${name} not found in align and split directories; proceeding to trimming"
+
+		file1=$(ls ${trimdir}/*.fq |grep -e ${name}_ |grep -e "R1" | grep -v "unpaired" )  
+		file2=$(ls ${trimdir}/*.fq |grep -e ${name}_ |grep -e "R2" | grep -v "unpaired" )
+
+		echo "checking trim files, unzipped is ${file1}"
 	
-	echo "Samples are ${samples}"
+		if [ -z "${file1}" ]; then
 
-	for name in ${samples}; do
-		
-		echo "Name is ${name}"
+			echo "unzipping files"
 
-		if [ -f ${aligndir}/${name}_aligned.sam ]; then
+			zipped="yes"
 
-			echo "already aligned"
-		
-		else
-
-			file1=$(ls ${fastadir}/*.fq |grep -e ${name}_ |grep -e "R1" )  
-			file2=$(ls ${fastadir}/*.fq |grep -e ${name}_ |grep -e "R2" )
-
-		
-			if [ -z ${file1} ]; then
-
-				echo "unzipping files"
-
-				zipped="yes"
-
-				zipped1=$(ls ${fastadir}/*.gz |grep -e ${name}_ |grep -e "R1" )  
-				tar -zxvf ${zipped1} -C ${fastadir}
-				
-				zipped2=$(ls ${fastadir}/*.gz |grep -e ${name}_ |grep -e "R2" )  
-				tar -zxvf ${zipped2} -C ${fastadir}
-
-
-				file1=$(ls ${fastadir}/*.fq |grep -e ${name}_ |grep -e "R1" )  
-				file2=$(ls ${fastadir}/*.fq |grep -e ${name}_ |grep -e "R2" )
-				
-			fi
-
-
-			echo "file1 is ${file1}, file 2 is ${file2}"  
-
-			 bowtie2 -q -p 12 -x ${genomedir}/bowtie_droso -1 ${file1} -2 ${file2} \
-				 -S ${aligndir}/${name}_aligned.sam
+			zipped1=$(ls ${trimdir}/*.gz |grep -e ${name}_ |grep -e "R1" )  
+			tar -zxvf ${zipped1} -C ${trimdir}
 			
-			if [ ${zipped} == "yes" ]; then
-				rm $file1 $file2
+			zipped2=$(ls ${trimdir}/*.gz |grep -e ${name}_ |grep -e "R2" )  
+			tar -zxvf ${zipped2} -C ${trimdir}
 
-			fi
-			
+
+			file1=$(ls ${trimdir}/*.fq |grep -e ${name}_ |grep -e "R1" )  
+			file2=$(ls ${trimdir}/*.fq |grep -e ${name}_ |grep -e "R2" )
+		
+		elif [ -f "${file1}" ]; then
+
+			echo "files not zipped, will zip after alignment"
+			zipped="no"
+
+		else 
+
+			echo "no trim file found, check file"
+			exit 1
+
 		fi
 
-	done
+
+		echo "file1 is ${file1}, file 2 is ${file2}"  
+
+		bowtie2 -q -p 12 -x ${genomedir}/bowtie_droso -1 ${file1} -2 ${file2} \
+			-S ${aligndir}/${name}_aligned.sam
+		
+		if [ "${zipped}" == "yes" ]; then
+
+			echo "removing non-zipped files"
+			# rm $file1 $file2
+
+		elif [ "${zipped}" == "no" ]; then
+
+			echo "zipping remaining files and removing non-zipped files"
+
+
+		fi
+		
+	fi
 
 done
+

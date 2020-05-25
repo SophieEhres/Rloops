@@ -1,4 +1,5 @@
 #!/bin/bash
+exec 2>./split_sam.log
 
 dir0="/Users/ehresms/computational/rloop"
 aligndir=${dir0}/align_trimmed
@@ -13,15 +14,16 @@ for file in ${files}; do
 	check_F="bad" #assign default "bad split" value
 	check_R="bad"
 
-	name=$(echo $file | cut -d '.' -f1)
+	name=$(echo $file | rev | cut -d '.' -f2- | rev)
 
-	if [ -f ${splitdir}/${name}_forward.sam ]; then #check if file has already been split and exists in splitdir
+	if [ -f "${splitdir}/${name}_forward.sam" ]; then #check if file has already been split and exists in splitdir
 
 		echo "already split"
 	
 	else
+
 		echo "splitting ${name}"
-		
+
 		samtools view -h -f 16 -F 4 -b -@ 16 ${aligndir}/${file} > ${splitdir}/${name}_reverse1.tmp #split reverse using SAM flags (https://broadinstitute.github.io/picard/explain-flags.html)
 		samtools view -h -f 83 -F 4 -b -@ 16 ${aligndir}/${file} > ${splitdir}/${name}_reverse2.tmp #output in non-sorted bam files to save space
 
@@ -40,7 +42,7 @@ for file in ${files}; do
 			samtools view -h -f 147 -F 4 -b -@ 16 ${aligndir}/${file} > ${splitdir}/${name}_forward1.tmp
 			samtools view -h -f 99 -F 4 -b -@ 16 ${aligndir}/${file} > ${splitdir}/${name}_forward2.tmp
 			
-		tomerge=$(ls ${splitdir}/*.tmp | tr "\n" " ")
+			tomerge=$(ls ${splitdir}/*.tmp | tr "\n" " ")
 
 			samtools merge -f -n -@ 16 ${splitdir}/${name}_forward.bam ${tomerge} #merge forward bam files
 
@@ -48,9 +50,10 @@ for file in ${files}; do
 
 			if [ -z "${check_F}" ]; then #stop if check_F has a value
 
-				echo "Forward split successful, removing original file" #remove original sam file and temp bam files
+				echo "Forward split successful, transforming sam into bam file" #remove original sam file and temp bam files
 
-				rm ${aligndir}/${file}
+				samtools view -@ 16 -S -b ${aligndir}/${file} > ${aligndir}/${name}.bam
+
 				rm ${splitdir}/*.tmp
 
 			else
@@ -69,8 +72,6 @@ for file in ${files}; do
 
 		fi
 
-		
 	fi
 	
 done
-

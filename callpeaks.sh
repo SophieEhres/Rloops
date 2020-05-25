@@ -42,11 +42,21 @@ for name in ${names}; do
 
 			macs2 callpeak -t ${file_f} -c ${control_f} \
 			--name ${name}_forward --outdir ${peakdir}/${name}_forward \
-			--format BAMPE -g 1.2e8 --nomodel -q 0.01
-			
+			--format BAMPE -g 1.2e8 --nomodel -q 0.01 >> macs2.log &
+			pid_${name}_f=$!
+
 			macs2 callpeak -t ${file_r} -c ${control_r} \
 			--name ${name}_reverse --outdir ${peakdir}/${name}_reverse \
-			--format BAMPE -g 1.2e8 --nomodel -q 0.01
+			--format BAMPE -g 1.2e8 --nomodel -q 0.01 >> macs2.log &
+			pid_${name}_r=$!
 			
+
 		fi
+done
+
+for name in ${names}; do
+	
+	wait pid_${!name}_f && echo " macs2 for ${name}_forward exited normally " || echo " macs2 for ${name}_forward exited abnormally, check macs2.log "
+	wait pid_${!name}_r && echo " macs2 for ${name}_reverse exited normally " || echo " macs2 for ${name}_reverse exited abnormally, check macs2.log "
+
 done

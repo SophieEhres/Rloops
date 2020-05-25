@@ -8,7 +8,7 @@ peakdir="${dir0}/rloop/peaks"
 
 mkdir -p $peakdir
 
-names=$(ls ${splitdir} | cut -d "_" -f1-2 | uniq | grep -v "input" )
+names=$(ls ${splitdir} | rev | cut -d "." -f2-  | cut -d "_" -f2- | rev | uniq | grep -v "input" )
 
 for name in ${names}; do
 
@@ -22,7 +22,7 @@ for name in ${names}; do
 
 			echo "no peak file found, proceeding to calling peaks for ${name}"
 
-			if echo ${name} | grep -e "RNH" || echo ${name} | grep -e "RNase"; then
+			if echo ${name} | grep -e "RNH" | echo ${name} | grep -e "RNase"; then
 
 				controlname=$(echo ${name} | rev | cut -d "-" -f3- | rev)
 

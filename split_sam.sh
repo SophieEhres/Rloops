@@ -35,7 +35,7 @@ for file in ${files}; do
 
 		if [ -z "${check_R}" ]; then #stop if check_R has a value (either "bad" or error output from quickcheck)
 
-			echo "Reverse split successful, splitting Forward"
+			echo "😀Reverse split successful, splitting Forward"
 
 			rm ${splitdir}/*.tmp #remove temp bam files
 
@@ -50,7 +50,7 @@ for file in ${files}; do
 
 			if [ -z "${check_F}" ]; then #stop if check_F has a value
 
-				echo "Forward split successful, transforming sam into bam file" #remove original sam file and temp bam files
+				echo "😀Forward split successful, transforming sam into bam file" #remove original sam file and temp bam files
 
 				samtools view -@ 16 -S -b ${aligndir}/${file} > ${aligndir}/${name}.bam
 
@@ -58,7 +58,7 @@ for file in ${files}; do
 
 			else
 
-			echo "Forward split not successful" #remove tmp bam files and echo error message
+			echo "😭Forward split not successful" #remove tmp bam files and echo error message
 			rm ${splitdir}/*.tmp
 
 			fi
@@ -66,7 +66,7 @@ for file in ${files}; do
 
 		else
 
-			echo "Reverse split not successful" #remove tmp bam files and echo error message
+			echo "😭Reverse split not successful" #remove tmp bam files and echo error message
 
 			rm ${splitdir}/*.tmp
 

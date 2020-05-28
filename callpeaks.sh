@@ -8,7 +8,7 @@ peakdir="${dir0}/rloop/peaks"
 
 mkdir -p $peakdir
 
-names=$(ls ${splitdir} | rev | cut -d "." -f2-  | cut -d "_" -f2- | rev | uniq | grep -v "input" )
+names=$(ls ${splitdir} | rev | cut -d "." -f2  | cut -d "_" -f2- | rev | uniq | grep -v "input" )
 
 for name in ${names}; do
 
@@ -42,12 +42,12 @@ for name in ${names}; do
 
 			macs2 callpeak -t ${file_f} -c ${control_f} \
 			--name ${name}_forward --outdir ${peakdir}/${name}_forward \
-			--format BAMPE -g 1.2e8 --nomodel -q 0.01 >> macs2.log &
+			--format BAMPE -g 1.2e8 --nomodel -q 0.01 &
 			pid_${name}_f=$!
 
 			macs2 callpeak -t ${file_r} -c ${control_r} \
 			--name ${name}_reverse --outdir ${peakdir}/${name}_reverse \
-			--format BAMPE -g 1.2e8 --nomodel -q 0.01 >> macs2.log &
+			--format BAMPE -g 1.2e8 --nomodel -q 0.01 &
 			pid_${name}_r=$!
 			
 
@@ -56,7 +56,7 @@ done
 
 for name in ${names}; do
 	
-	wait pid_${!name}_f && echo " macs2 for ${name}_forward exited normally " || echo " macs2 for ${name}_forward exited abnormally, check macs2.log "
-	wait pid_${!name}_r && echo " macs2 for ${name}_reverse exited normally " || echo " macs2 for ${name}_reverse exited abnormally, check macs2.log "
+	wait pid_${name}_f && echo " macs2 for ${name}_forward exited normally " || echo " macs2 for ${name}_forward exited abnormally, check callpeaks.log "
+	wait pid_${name}_r && echo " macs2 for ${name}_reverse exited normally " || echo " macs2 for ${name}_reverse exited abnormally, check callpeaks.log "
 
 done
